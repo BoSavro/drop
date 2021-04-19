@@ -1,0 +1,13 @@
+version: '3.7'
+services:
+  php:
+    container_name: php
+    build: ./docker/php
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./:/var/www/:cached
+    networks:
+      - php
+networks:
+  php:
