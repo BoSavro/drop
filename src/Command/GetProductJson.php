@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Poisondrop\Command;
 
-use GuzzleHttp\Exception\GuzzleException;
+use Poisondrop\Dto\Response\ProductResponse;
 use Poisondrop\Exception\ApiException;
 use Poisondrop\Exception\ProductException;
-use Poisondrop\Response\ProductResponse;
 use Poisondrop\Service\ClientServiceInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;

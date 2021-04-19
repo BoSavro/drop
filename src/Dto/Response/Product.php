@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Poisondrop\Response;
+namespace Poisondrop\Dto\Response;
 
 final class Product
 {

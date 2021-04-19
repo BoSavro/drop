@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Poisondrop\Response;
+namespace Poisondrop\Dto\Response;
 
 final class ProductResponse
 {
-    private Data $date;
+    private Data $data;
     private bool $success;
 
-    public function getDate(): Data
+    public function getData(): Data
     {
-        return $this->date;
+        return $this->data;
     }
 
-    public function setDate(Data $date): ProductResponse
+    public function setData(Data $data): ProductResponse
     {
-        $this->date = $date;
+        $this->data = $data;
         return $this;
     }
 

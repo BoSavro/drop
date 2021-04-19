@@ -1,0 +1,25 @@
+{
+  "data": {
+    "products": [
+      {
+        "vendor_code": "VNDRCD353I",
+        "name": "Товар 1",
+        "price": 100,
+        "features": {
+          "some_feature1": 100,
+          "some_feature2": "some text"
+        }
+      },
+      {
+        "vendor_code": "KNDRCD3569I",
+        "name": "Товар 2",
+        "price": 105,
+        "features": {
+          "some_feature1": 135,
+          "some_feature2": "some text2"
+        }
+      }
+    ]
+  },
+  "success": true
+}
