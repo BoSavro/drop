@@ -6,9 +6,7 @@ namespace Poisondrop\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Poisondrop\Command\GetProductJson;
-use Poisondrop\Dto\Response\ProductResponse;
 use Poisondrop\Service\ClientServiceInterface;
-use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -16,17 +14,20 @@ use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\SerializerInterface;
 use Throwable;
 
 class GetProductJsonTest extends TestCase
 {
-    private SerializerInterface $serializer;
     private GetProductJson $getProductJson;
 
     public function setUp(): void
     {
+        $response      = file_get_contents('/var/www/tests/products.json');
         $clientService = $this->createMock(ClientServiceInterface::class);
+        $clientService
+            ->expects($this->once())
+            ->method('buildGetRequest')
+            ->willReturn($response);
 
         $encoder          = [new JsonEncoder()];
         $extractor        = new PropertyInfoExtractor(
@@ -42,21 +43,18 @@ class GetProductJsonTest extends TestCase
                 $extractor
             ),
         ];
-        $this->serializer = new Serializer($normalizer, $encoder);
+        $serializer = new Serializer($normalizer, $encoder);
 
         $this->getProductJson = new GetProductJson(
             $clientService,
-            $this->serializer
+            $serializer
         );
     }
 
     public function testSerializer(): void
     {
-        $response         = file_get_contents('/var/www/tests/products.json');
-        $products         = $this->serializer->deserialize($response, ProductResponse::class, 'json');
-        $propertyAccessor = PropertyAccess::createPropertyAccessor();
-        $firstProductName = $propertyAccessor->getValue($products, 'data.products[0][name]');
-        $this->assertEquals('Товар 1', $firstProductName);
+        $product = $this->getProductJson->execute();
+        $this->assertEquals('Товар 1', $product->getData()->getProducts()[0]['name']);
     }
 
     public function testExecuteMethodGotWrongDataFormat(): void
