@@ -11,7 +11,6 @@ use Poisondrop\Service\ClientServiceInterface;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -68,7 +67,7 @@ class GetProductJsonTest extends TestCase
                 ->willReturn(file_get_contents(__DIR__ . '/bad.json'));
             $this->getProductJson->execute();
         } catch (Throwable $e) {
-            $this->assertInstanceOf(ApiException::class, $e);
+            $this->assertInstanceOf('string error message', $e->getMessage());
         }
     }
 }
