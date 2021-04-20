@@ -6,6 +6,7 @@ namespace Poisondrop\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Poisondrop\Command\GetProductJson;
+use Poisondrop\Exception\ApiException;
 use Poisondrop\Service\ClientServiceInterface;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
@@ -20,14 +21,9 @@ class GetProductJsonTest extends TestCase
 {
     private GetProductJson $getProductJson;
     private ClientServiceInterface $clientService;
-    private string $goodResponse;
-    private string $badResponse;
 
     public function setUp(): void
     {
-        $this->goodResponse = file_get_contents(__DIR__ . '/products.json');
-        $this->badResponse = file_get_contents(__DIR__ . '/bad.json');
-
         $this->clientService = $this->createMock(ClientServiceInterface::class);
 
         $encoder    = [new JsonEncoder()];
@@ -52,12 +48,12 @@ class GetProductJsonTest extends TestCase
         );
     }
 
-    public function testSerializer(): void
+    public function testExecuteMethodGotRightDataFormat(): void
     {
         $this->clientService
             ->expects($this->once())
             ->method('buildGetRequest')
-            ->willReturn($this->goodResponse);
+            ->willReturn(file_get_contents(__DIR__ . '/products.json'));
 
         $product = $this->getProductJson->execute();
         $this->assertEquals('Товар 1', $product->getData()->getProducts()[0]['name']);
@@ -69,12 +65,10 @@ class GetProductJsonTest extends TestCase
             $this->clientService
                 ->expects($this->once())
                 ->method('buildGetRequest')
-                ->willReturn($this->badResponse);
-
-            $product = $this->getProductJson->execute();
-            $this->assertEquals(false, $product->isSuccess());
+                ->willReturn(file_get_contents(__DIR__ . '/bad.json'));
+            $this->getProductJson->execute();
         } catch (Throwable $e) {
-            $this->assertInstanceOf(NotEncodableValueException::class, $e);
+            $this->assertInstanceOf(ApiException::class, $e);
         }
     }
 }
