@@ -19,22 +19,23 @@ use Throwable;
 class GetProductJsonTest extends TestCase
 {
     private GetProductJson $getProductJson;
+    private ClientServiceInterface $clientService;
+    private string $goodResponse;
+    private string $badResponse;
 
     public function setUp(): void
     {
-        $response      = file_get_contents('/var/www/tests/products.json');
-        $clientService = $this->createMock(ClientServiceInterface::class);
-        $clientService
-            ->expects($this->once())
-            ->method('buildGetRequest')
-            ->willReturn($response);
+        $this->goodResponse = file_get_contents(__DIR__ . '/products.json');
+        $this->badResponse = file_get_contents(__DIR__ . '/bad.json');
 
-        $encoder          = [new JsonEncoder()];
-        $extractor        = new PropertyInfoExtractor(
+        $this->clientService = $this->createMock(ClientServiceInterface::class);
+
+        $encoder    = [new JsonEncoder()];
+        $extractor  = new PropertyInfoExtractor(
             [],
             [new ReflectionExtractor()]
         );
-        $normalizer       = [
+        $normalizer = [
             new ArrayDenormalizer(),
             new ObjectNormalizer(
                 null,
@@ -46,13 +47,18 @@ class GetProductJsonTest extends TestCase
         $serializer = new Serializer($normalizer, $encoder);
 
         $this->getProductJson = new GetProductJson(
-            $clientService,
+            $this->clientService,
             $serializer
         );
     }
 
     public function testSerializer(): void
     {
+        $this->clientService
+            ->expects($this->once())
+            ->method('buildGetRequest')
+            ->willReturn($this->goodResponse);
+
         $product = $this->getProductJson->execute();
         $this->assertEquals('Товар 1', $product->getData()->getProducts()[0]['name']);
     }
@@ -60,7 +66,13 @@ class GetProductJsonTest extends TestCase
     public function testExecuteMethodGotWrongDataFormat(): void
     {
         try {
-            $this->getProductJson->execute([]);
+            $this->clientService
+                ->expects($this->once())
+                ->method('buildGetRequest')
+                ->willReturn($this->badResponse);
+
+            $product = $this->getProductJson->execute();
+            $this->assertEquals(false, $product->isSuccess());
         } catch (Throwable $e) {
             $this->assertInstanceOf(NotEncodableValueException::class, $e);
         }
