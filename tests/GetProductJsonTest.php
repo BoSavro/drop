@@ -52,7 +52,7 @@ class GetProductJsonTest extends TestCase
         $this->clientService
             ->expects($this->once())
             ->method('buildGetRequest')
-            ->willReturn(file_get_contents(__DIR__ . '/products.json'));
+            ->willReturn(file_get_contents(__DIR__.'/products.json'));
 
         $product = $this->getProductJson->execute();
         $this->assertEquals('Товар 1', $product->getData()->getProducts()[0]['name']);
@@ -64,7 +64,7 @@ class GetProductJsonTest extends TestCase
             $this->clientService
                 ->expects($this->once())
                 ->method('buildGetRequest')
-                ->willReturn(file_get_contents(__DIR__ . '/bad.json'));
+                ->willReturn(file_get_contents(__DIR__.'/bad.json'));
             $this->getProductJson->execute();
         } catch (Throwable $e) {
             $this->assertInstanceOf('string error message', $e->getMessage());
